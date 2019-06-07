@@ -1,5 +1,5 @@
 ---
-clusterName: "security"
+clusterName: "es-baz"
 nodeGroup: "master"
 
 roles:
@@ -7,18 +7,12 @@ roles:
   ingest: "true"
   data: "true"
 
-protocol: https
+protocol: http
 
 esConfig:
   elasticsearch.yml: |
     xpack.security.enabled: true
     xpack.security.transport.ssl.enabled: true
-    xpack.security.transport.ssl.verification_mode: certificate
-    xpack.security.transport.ssl.keystore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
-    xpack.security.transport.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
-    xpack.security.http.ssl.enabled: true
-    xpack.security.http.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
-    xpack.security.http.ssl.keystore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
 
 extraEnvs:
   - name: ELASTIC_PASSWORD

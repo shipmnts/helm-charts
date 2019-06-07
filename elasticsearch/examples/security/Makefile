@@ -2,10 +2,10 @@ default: test
 
 include ../../../helpers/examples.mk
 
-RELEASE := helm-es-security
+RELEASE := elastic
 
 install:
-	helm upgrade --wait --timeout=600 --install --values ./security.yml $(RELEASE) ../../ ; \
+	helm upgrade --install --values ./security.yml $(RELEASE) ../../ --set replicas=1 ; \
 	
 purge:
 	helm del --purge $(RELEASE)
