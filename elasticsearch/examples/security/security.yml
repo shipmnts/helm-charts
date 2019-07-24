@@ -14,15 +14,19 @@ esConfig:
     xpack.security.enabled: true
     xpack.security.transport.ssl.enabled: true
 # Uncomment for staging/dev
-# esJavaOpts: "-Xmx512m -Xms512m"
+esJavaOpts: "-Xmx512m -Xms512m"
 
-# resources:
-#   requests:
-#     cpu: "100m"
-#     memory: "1Gi"
-#   limits:
-#     cpu: "100m"
-#     memory: "1Gi"
+resources:
+  requests:
+    cpu: "100m"
+    memory: "1Gi"
+  limits:
+    cpu: "100m"
+    memory: "1Gi"
+
+# Comment for staging/dev
+# nodeSelector:
+#   node_type: es
 
 extraEnvs:
   - name: ELASTIC_PASSWORD

@@ -46,7 +46,8 @@ image: "docker.elastic.co/elasticsearch/elasticsearch"
 imageTag: "7.1.1"
 imagePullPolicy: "IfNotPresent"
 
-podAnnotations: {}
+podAnnotations:
+  {}
   # iam.amazonaws.com/role: es-cluster
 
 esJavaOpts: "-Xmx1g -Xms1g"
@@ -59,7 +60,8 @@ resources:
     cpu: "1000m"
     memory: "2Gi"
 
-initResources: {}
+initResources:
+  {}
   # limits:
   #   cpu: "25m"
   #   # memory: "128Mi"
@@ -70,7 +72,7 @@ initResources: {}
 networkHost: "0.0.0.0"
 
 volumeClaimTemplate:
-  accessModes: [ "ReadWriteOnce" ]
+  accessModes: ["ReadWriteOnce"]
   resources:
     requests:
       storage: 30Gi
@@ -79,16 +81,19 @@ persistence:
   enabled: true
   annotations: {}
 
-extraVolumes: []
+extraVolumes:
+  []
   # - name: extras
   #   emptyDir: {}
 
-extraVolumeMounts: []
+extraVolumeMounts:
+  []
   # - name: extras
   #   mountPath: /usr/share/extras
   #   readOnly: true
 
-extraInitContainers: []
+extraInitContainers:
+  []
   # - name: do-something
   #   image: busybox
   #   command: ['do', 'something']
@@ -122,9 +127,9 @@ updateStrategy: RollingUpdate
 # This is the max unavailable setting for the pod disruption budget
 # The default value of 1 will make sure that kubernetes won't allow more than 1
 # of your pods to be unavailable during maintenance
-maxUnavailable: 1
-
- # GroupID for the elasticsearch user. The official elastic docker images always have the id of 1000
+maxUnavailable:
+  1
+  # GroupID for the elasticsearch user. The official elastic docker images always have the id of 1000
 fsGroup: 1000
 
 # How long to wait for elasticsearch to stop gracefully
@@ -140,7 +145,7 @@ readinessProbe:
   timeoutSeconds: 5
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html#request-params wait_for_status
-clusterHealthCheckParams: "wait_for_status=green&timeout=1s"
+# clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
 
 ## Use an alternate scheduler.
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -155,7 +160,8 @@ tolerations: []
 # Only enable this if you have security enabled on your cluster
 ingress:
   enabled: false
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   path: /
