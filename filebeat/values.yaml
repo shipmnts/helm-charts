@@ -8,10 +8,10 @@ filebeatConfig:
       containers.ids:
       - '*'
       processors:
-      - add_kubernetes_metadata:
-          in_cluster: true
+      - add_kubernetes_metadata: ~
 
     output.elasticsearch:
+      host: '${NODE_NAME}'
       hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
 
 # Extra environment variables to append to the DaemonSet pod spec.
@@ -30,21 +30,49 @@ extraVolumes: []
   # - name: extras
   #   emptyDir: {}
 
+extraContainers: ""
+# - name: dummy-init
+#   image: busybox
+#   command: ['echo', 'hey']
+
+extraInitContainers: []
+# - name: dummy-init
+#   image: busybox
+#   command: ['echo', 'hey']
+
+envFrom: []
+# - configMapRef:
+#     name: configmap-name
+
 # Root directory where Filebeat will write data to in order to persist registry data across pod restarts (file position and other metadata).
 hostPathRoot: /var/lib
-
+hostNetworking: false
 image: "docker.elastic.co/beats/filebeat"
-imageTag: "7.1.1"
+imageTag: "7.6.1"
 imagePullPolicy: "IfNotPresent"
 imagePullSecrets: []
 
 livenessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env bash -e
+        curl --fail 127.0.0.1:5066
   failureThreshold: 3
   initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5
 
 readinessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env bash -e
+        filebeat test output
   failureThreshold: 3
   initialDelaySeconds: 10
   periodSeconds: 10
@@ -52,6 +80,9 @@ readinessProbe:
 
 # Whether this chart should self-manage its service account, role, and associated role binding.
 managedServiceAccount: true
+
+# additionals labels
+labels: {}
 
 podAnnotations: {}
   # iam.amazonaws.com/role: es-cluster
@@ -86,6 +117,14 @@ secretMounts: []
 terminationGracePeriod: 30
 
 tolerations: []
+
+nodeSelector: {}
+
+affinity: {}
+
+# This is the PriorityClass settings as defined in
+# https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+priorityClassName: ""
 
 updateStrategy: RollingUpdate
 

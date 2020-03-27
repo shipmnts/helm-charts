@@ -16,7 +16,7 @@ roles:
 replicas: 3
 minimumMasterNodes: 2
 
-esMajorVersion: 7
+esMajorVersion: ""
 
 # Allows you to add any config files in /usr/share/elasticsearch/config/
 # such as elasticsearch.yml and log4j2.properties
@@ -43,16 +43,36 @@ secretMounts: []
 #    path: /usr/share/elasticsearch/config/certs
 
 image: "docker.elastic.co/elasticsearch/elasticsearch"
-imageTag: "7.1.1"
+imageTag: "7.6.1"
 imagePullPolicy: "IfNotPresent"
 
 podAnnotations:
   {}
   # iam.amazonaws.com/role: es-cluster
 
+# additionals labels
+labels: {}
+
 esJavaOpts: "-Xmx1g -Xms1g"
 
+resources:
+  requests:
+    cpu: "1000m"
+    memory: "2Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
 initResources:
+  {}
+  # limits:
+  #   cpu: "25m"
+  #   # memory: "128Mi"
+  # requests:
+  #   cpu: "25m"
+  #   memory: "128Mi"
+
+sidecarResources:
   {}
   # limits:
   #   cpu: "25m"
@@ -69,23 +89,51 @@ volumeClaimTemplate:
     requests:
       storage: 30Gi
 
+rbac:
+  create: false
+  serviceAccountName: ""
+
+podSecurityPolicy:
+  create: false
+  name: ""
+  spec:
+    privileged: true
+    fsGroup:
+      rule: RunAsAny
+    runAsUser:
+      rule: RunAsAny
+    seLinux:
+      rule: RunAsAny
+    supplementalGroups:
+      rule: RunAsAny
+    volumes:
+      - secret
+      - configMap
+      - persistentVolumeClaim
+
 persistence:
   enabled: true
   annotations: {}
 
 extraVolumes:
-  []
+  ""
   # - name: extras
   #   emptyDir: {}
 
 extraVolumeMounts:
-  []
+  ""
   # - name: extras
   #   mountPath: /usr/share/extras
   #   readOnly: true
 
+extraContainers:
+  ""
+  # - name: do-something
+  #   image: busybox
+  #   command: ['do', 'something']
+
 extraInitContainers:
-  []
+  ""
   # - name: do-something
   #   image: busybox
   #   command: ['do', 'something']
@@ -114,15 +162,39 @@ protocol: http
 httpPort: 9200
 transportPort: 9300
 
+service:
+  labels: {}
+  labelsHeadless: {}
+  type: ClusterIP
+  nodePort: ""
+  annotations: {}
+  httpPortName: http
+  transportPortName: transport
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+
 updateStrategy: RollingUpdate
 
 # This is the max unavailable setting for the pod disruption budget
 # The default value of 1 will make sure that kubernetes won't allow more than 1
 # of your pods to be unavailable during maintenance
-maxUnavailable:
-  1
-  # GroupID for the elasticsearch user. The official elastic docker images always have the id of 1000
-fsGroup: 1000
+maxUnavailable: 1
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+
+# The following value is deprecated,
+# please use the above podSecurityContext.fsGroup instead
+fsGroup: ""
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  # readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
 
 # How long to wait for elasticsearch to stop gracefully
 terminationGracePeriod: 120
@@ -166,3 +238,32 @@ ingress:
 
 nameOverride: ""
 fullnameOverride: ""
+
+# https://github.com/elastic/helm-charts/issues/63
+masterTerminationFix: false
+
+lifecycle:
+  {}
+  # preStop:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+  # postStart:
+  #   exec:
+  #     command:
+  #       - bash
+  #       - -c
+  #       - |
+  #         #!/bin/bash
+  #         # Add a template to adjust number of shards/replicas
+  #         TEMPLATE_NAME=my_template
+  #         INDEX_PATTERN="logstash-*"
+  #         SHARD_COUNT=8
+  #         REPLICA_COUNT=1
+  #         ES_URL=http://localhost:9200
+  #         while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' $ES_URL)" != "200" ]]; do sleep 1; done
+  #         curl -XPUT "$ES_URL/_template/$TEMPLATE_NAME" -H 'Content-Type: application/json' -d'{"index_patterns":['\""$INDEX_PATTERN"\"'],"settings":{"number_of_shards":'$SHARD_COUNT',"number_of_replicas":'$REPLICA_COUNT'}}'
+
+sysctlInitContainer:
+  enabled: true
+
+keystore: []
