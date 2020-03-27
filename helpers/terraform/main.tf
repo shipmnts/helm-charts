@@ -1,7 +1,7 @@
 provider "google" {
   project = "${var.project}"
   region  = "${var.primary_region}"
-  version = "1.13.0"
+  version = "2.13.0"
 }
 
 terraform {
@@ -25,8 +25,8 @@ resource "google_container_cluster" "cluster" {
   }
 
   timeouts {
-    create = "30m"
-    delete = "30m"
-    update = "30m"
+    create = "180m"
+    delete = "180m"
+    update = "180m"
   }
 }
